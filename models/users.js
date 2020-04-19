@@ -1,4 +1,5 @@
 const mongoose = require('mongoose')
+const bcrypt = require('bcrypt')
 const userSchema = mongoose.Schema(
     {
       firstName: { type: String , required:true , maxlength :20 , minlength :3} ,
@@ -11,5 +12,21 @@ const userSchema = mongoose.Schema(
 
     }
 )
+
+userSchema.pre('save', function(doc ,next){
+  //true if doc is new
+  if(doc.isNew)
+  {
+    const hashedpass =bcrypt.hash(doc.password ,10, (err ,hashedpass)=>{
+      if(!err){
+           doc.password = hashedpass
+           next()
+      }
+      next(err)
+    })
+  }
+
+})
 const userModel = mongoose.model("User" , userSchema)
+
 module.exports =userModel
